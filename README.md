@@ -18,8 +18,6 @@ Developed a simple web-based Student Attendance Management System with separate 
 
 ## Technologies Used
 - Java
-- JSP
-- Servlet
 - MySQL
 - HTML
 - CSS
