@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background: #f4f6fb; font-family: 'Segoe UI', sans-serif; }
+        .navbar { background: #1a1a2e; }
+        .navbar-brand, .nav-link { color: #fff !important; }
+        .stat-card { border-radius: 14px; padding: 20px 24px; color: #fff; }
+        .stat-card h5 { font-size: 0.85rem; opacity: 0.8; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-card h2 { font-size: 2.2rem; font-weight: 700; margin: 0; }
+        .card { border: none; border-radius: 14px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
+        .table thead th { background: #f8f9ff; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; color: #6c757d; border: none; }
+        .table td { vertical-align: middle; }
+        .badge-dept { background: #eef2ff; color: #4f46e5; border-radius: 6px; padding: 3px 10px; font-size: 0.78rem; }
+    </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg px-4">
+    <span class="navbar-brand fw-bold">🎓 AttendanceSystem</span>
+    <div class="ms-auto d-flex gap-3 align-items-center">
+        <a href="/admin/students" class="nav-link">Students</a>
+        <a href="/view-attendance" class="nav-link">Attendance</a>
+        <a href="/logout" class="btn btn-outline-light btn-sm">Logout</a>
+    </div>
+</nav>
+
+<div class="container-fluid px-4 mt-4">
+
+    <h4 class="fw-bold mb-1">Admin Dashboard</h4>
+    <p class="text-muted mb-4">Overview of all students and attendance</p>
+
+    <!-- Stats -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg,#4f46e5,#7c3aed)">
+                <h5>Total Students</h5>
+                <h2 th:text="${totalStudents}">0</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg,#059669,#10b981)">
+                <h5>Present Today</h5>
+                <h2 th:text="${presentCount}">0</h2>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card" style="background: linear-gradient(135deg,#dc2626,#ef4444)">
+                <h5>Absent Today</h5>
+                <h2 th:text="${absentCount}">0</h2>
+            </div>
+        </div>
+    </div>
+
+    <!-- Student Table -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0">All Students</h5>
+
+                <!-- ✅ Buttons: Add Student + Reset ID -->
+                <div class="d-flex gap-2">
+                    <a href="/admin/students/add" class="btn btn-primary btn-sm">
+                        + Add Student
+                    </a>
+<!--  Reset ID form:-->
+   <form th:action="@{/admin/students/reset-id}" method="post" class="d-inline"
+      onsubmit="return confirm('Reset ID to 1? This only works when all students are deleted.')">
+    <button type="submit" class="btn btn-secondary btn-sm">
+        🔄 Reset ID
+    </button>
+
+</form>
+                </div>
+            </div>
+
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="s : ${students}">
+                        <td th:text="${s.id}"></td>
+                        <td th:text="${s.name}"></td>
+                        <td th:text="${s.email}"></td>
+                        <td><span class="badge-dept" th:text="${s.department}"></span></td>
+                        <td>
+                            <a th:href="@{'/admin/students/edit/' + ${s.id}}"
+                               class="btn btn-warning btn-sm me-1">Edit</a>
+
+   <form th:action="@{'/admin/students/delete/' + ${s.id}}"
+      method="post" class="d-inline"
+      onsubmit="return confirm('Delete this student?')">
+    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+</form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(students)}">
+                        <td colspan="5" class="text-center text-muted py-4">No students found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Reports Section -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="fw-bold mb-3">📊 Reports</h5>
+
+            <div class="d-flex flex-wrap gap-3 align-items-center">
+
+                <!-- Full Attendance -->
+                <a href="/excel/attendance" class="btn btn-success">
+                    Download Full Attendance
+                </a>
+
+                <!-- Monthly Attendance -->
+                <form action="/excel/attendance/month" method="get" class="d-flex gap-2">
+                    <input type="number" name="month" class="form-control"
+                           placeholder="Month" min="1" max="12" required>
+                    <input type="number" name="year" class="form-control"
+                           placeholder="Year" required>
+                    <button type="submit" class="btn btn-primary">
+                        Download Monthly
+                    </button>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>
